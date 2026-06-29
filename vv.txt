@@ -1,0 +1,294 @@
+﻿--[[
+   VV Ultimatum Hub | made by sensai
+   Key System GUI
+   ---------------------------------------------
+   EDIT THESE TWO THINGS BELOW, THEN YOU'RE DONE:
+]]
+
+
+local KEY_LINK = "https://www.roblox.com.et/communities/337145906358/vvultimatumunderground"            -- what "Copy Link" copies to clipboard
+local VALID_KEYS = {                                    -- every key that should unlock the hub
+   "PASTE_YOUR_VALID_KEY_HERE",
+}
+
+
+----------------------------------------------------------------
+-- SERVICES
+----------------------------------------------------------------
+local Players      = game:GetService("Players")
+local UserInputServ = game:GetService("UserInputService")
+local LocalPlayer  = Players.LocalPlayer
+
+
+----------------------------------------------------------------
+-- CLEAN UP OLD GUI (in case the script gets re-run)
+----------------------------------------------------------------
+local function safeDestroy(name)
+   local pg = LocalPlayer:FindFirstChild("PlayerGui")
+   if pg and pg:FindFirstChild(name) then pg[name]:Destroy() end
+   local cg = game:GetService("CoreGui"):FindFirstChild(name)
+   if cg then cg:Destroy() end
+end
+safeDestroy("VV_KeySystem")
+
+
+----------------------------------------------------------------
+-- BUILD GUI
+----------------------------------------------------------------
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "VV_KeySystem"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+
+local parented = pcall(function()
+   ScreenGui.Parent = game:GetService("CoreGui")
+end)
+if not parented then
+   ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+
+-- Main frame
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 380, 0, 230)
+Main.Position = UDim2.new(0.5, -190, 0.5, -115)
+Main.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 12)
+
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(80, 220, 100)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = Main
+
+
+-- Top accent bar
+local AccentBar = Instance.new("Frame")
+AccentBar.Size = UDim2.new(1, 0, 0, 4)
+AccentBar.BackgroundColor3 = Color3.fromRGB(80, 220, 100)
+AccentBar.BorderSizePixel = 0
+AccentBar.Parent = Main
+Instance.new("UICorner", AccentBar).CornerRadius = UDim.new(0, 12)
+
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 0, 0, 14)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "VV Ultimatum Hub"
+Title.Parent = Main
+
+
+-- Subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.BackgroundTransparency = 1
+Subtitle.Size = UDim2.new(1, 0, 0, 16)
+Subtitle.Position = UDim2.new(0, 0, 0, 42)
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextSize = 13
+Subtitle.TextColor3 = Color3.fromRGB(150, 150, 155)
+Subtitle.Text = "made by sensai"
+Subtitle.Parent = Main
+
+
+-- Close button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+CloseBtn.Position = UDim2.new(1, -36, 0, 10)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 46)
+CloseBtn.Text = "X"
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.AutoButtonColor = true
+CloseBtn.Parent = Main
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 8)
+CloseBtn.MouseButton1Click:Connect(function()
+   ScreenGui:Destroy()
+end)
+
+
+-- Key input box
+local KeyBox = Instance.new("TextBox")
+KeyBox.Size = UDim2.new(1, -40, 0, 38)
+KeyBox.Position = UDim2.new(0, 20, 0, 75)
+KeyBox.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
+KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBox.PlaceholderText = "Enter key here..."
+KeyBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 125)
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.TextSize = 14
+KeyBox.ClearTextOnFocus = false
+KeyBox.Text = ""
+KeyBox.Parent = Main
+Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 8)
+
+
+-- Status label
+local Status = Instance.new("TextLabel")
+Status.BackgroundTransparency = 1
+Status.Size = UDim2.new(1, -40, 0, 18)
+Status.Position = UDim2.new(0, 20, 0, 117)
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 12
+Status.TextColor3 = Color3.fromRGB(150, 150, 155)
+Status.Text = "Status: waiting for key..."
+Status.TextXAlignment = Enum.TextXAlignment.Left
+Status.Parent = Main
+
+
+-- Check Key button (left)
+local CheckBtn = Instance.new("TextButton")
+CheckBtn.Size = UDim2.new(0.46, 0, 0, 42)
+CheckBtn.Position = UDim2.new(0, 20, 0, 145)
+CheckBtn.BackgroundColor3 = Color3.fromRGB(80, 220, 100)
+CheckBtn.Text = "Check Key"
+CheckBtn.Font = Enum.Font.GothamBold
+CheckBtn.TextSize = 14
+CheckBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
+CheckBtn.AutoButtonColor = true
+CheckBtn.Parent = Main
+Instance.new("UICorner", CheckBtn).CornerRadius = UDim.new(0, 8)
+
+
+-- Copy Link button (right)
+local CopyBtn = Instance.new("TextButton")
+CopyBtn.Size = UDim2.new(0.46, 0, 0, 42)
+CopyBtn.Position = UDim2.new(0.54, 0, 0, 145)
+CopyBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+CopyBtn.Text = "Copy Link"
+CopyBtn.Font = Enum.Font.GothamBold
+CopyBtn.TextSize = 14
+CopyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyBtn.AutoButtonColor = true
+CopyBtn.Parent = Main
+Instance.new("UICorner", CopyBtn).CornerRadius = UDim.new(0, 8)
+
+
+-- Footer
+local Footer = Instance.new("TextLabel")
+Footer.BackgroundTransparency = 1
+Footer.Size = UDim2.new(1, 0, 0, 16)
+Footer.Position = UDim2.new(0, 0, 1, -22)
+Footer.Font = Enum.Font.Gotham
+Footer.TextSize = 11
+Footer.TextColor3 = Color3.fromRGB(90, 90, 95)
+Footer.Text = "VV Ultimatum Hub"
+Footer.Parent = Main
+
+
+----------------------------------------------------------------
+-- DRAGGING
+----------------------------------------------------------------
+do
+   local dragging, dragInput, dragStart, startPos
+
+
+   Main.InputBegan:Connect(function(input)
+       if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+           dragging = true
+           dragStart = input.Position
+           startPos = Main.Position
+           input.Changed:Connect(function()
+               if input.UserInputState == Enum.UserInputState.End then
+                   dragging = false
+               end
+           end)
+       end
+   end)
+
+
+   Main.InputChanged:Connect(function(input)
+       if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+           dragInput = input
+       end
+   end)
+
+
+   UserInputServ.InputChanged:Connect(function(input)
+       if input == dragInput and dragging then
+           local delta = input.Position - dragStart
+           Main.Position = UDim2.new(
+               startPos.X.Scale, startPos.X.Offset + delta.X,
+               startPos.Y.Scale, startPos.Y.Offset + delta.Y
+           )
+       end
+   end)
+end
+
+
+----------------------------------------------------------------
+-- HELPERS
+----------------------------------------------------------------
+local function setStatus(text, color)
+   Status.Text = "Status: " .. text
+   Status.TextColor3 = color
+end
+
+
+local function isValidKey(key)
+   for _, k in ipairs(VALID_KEYS) do
+       if key == k then
+           return true
+       end
+   end
+   return false
+end
+
+
+----------------------------------------------------------------
+-- CHECK KEY
+----------------------------------------------------------------
+CheckBtn.MouseButton1Click:Connect(function()
+   local enteredKey = KeyBox.Text
+
+
+   if enteredKey == "" then
+       setStatus("please enter a key first", Color3.fromRGB(230, 120, 90))
+       return
+   end
+
+
+   if isValidKey(enteredKey) then
+       setStatus("key accepted! loading hub...", Color3.fromRGB(80, 220, 100))
+
+
+       task.wait(0.6)
+       ScreenGui:Destroy()
+
+
+       --==========================================================
+       -- PUT YOUR ACTUAL HUB SCRIPT HERE, e.g.:
+       -- loadstring(game:HttpGet("YOUR_HUB_SCRIPT_RAW_LINK_HERE"))()
+       --==========================================================
+   else
+       setStatus("invalid key, try again", Color3.fromRGB(230, 90, 90))
+   end
+end)
+
+
+----------------------------------------------------------------
+-- COPY LINK
+----------------------------------------------------------------
+CopyBtn.MouseButton1Click:Connect(function()
+   local ok = pcall(function()
+       setclipboard(KEY_LINK)
+   end)
+
+
+   if ok then
+       setStatus("link copied to clipboard!", Color3.fromRGB(80, 220, 100))
+   else
+       setStatus("clipboard not supported on this executor", Color3.fromRGB(230, 120, 90))
+   end
+end)
